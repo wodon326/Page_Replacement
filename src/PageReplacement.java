@@ -97,16 +97,8 @@ public class PageReplacement {
             isPageFault = true;
             for(char c : now_frame){
                 if(target == c) {
-                    for(char k : deque){
-                        System.out.print(k);
-                    }
-                    System.out.println();
                     deque.remove(target);
                     deque.addLast(target);
-                    for(char k : deque){
-                        System.out.print(k);
-                    }
-                    System.out.println();
                     Result.add(new PageResult(target,false,new ArrayList<>(now_frame)));
                     isPageFault = false;
                     break;
@@ -178,4 +170,80 @@ public class PageReplacement {
         return Result;
     }
 
+    public ArrayList<PageResult> LRUPool(String Reference_String,int frame_num){
+        ArrayList<PageResult> Result = new ArrayList<>();
+        ArrayList<Character> now_frame = new ArrayList<>();
+        Queue<Character> queue = new LinkedList<>();
+        boolean []isLRU = new boolean[frame_num];
+        boolean isPageFault = true;
+        int victim_page = 0;
+        for (int i = 0; i < Reference_String.length(); i++) {
+            char target = Reference_String.charAt(i);
+            isPageFault = true;
+            for(int index = 0;index<now_frame.size();index++){
+                char c = now_frame.get(index);
+                if(target == c) {
+                    Result.add(new PageResult(target,false,new ArrayList<>(now_frame)));
+                    isPageFault = false;
+                    if(isLRU[index]){
+                        isLRU[index] = false;
+                        queue.add(target);
+                        char setLRU = queue.poll();
+                        for(int index_Search_LRU = 0;index_Search_LRU<now_frame.size();index_Search_LRU++){
+                            char searchLRU =  now_frame.get(index_Search_LRU);
+                            if(setLRU == searchLRU){
+                                isLRU[index_Search_LRU] = true;
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                        queue.remove(target);
+                        queue.add(target);
+                    }
+                    break;
+                }
+            }
+            if(isPageFault){
+                if(now_frame.size()<frame_num){
+                    if(queue.size()<frame_num/2){
+                        now_frame.add(target);
+                        queue.add(target);
+                        Result.add(new PageResult(target,true,new ArrayList<>(now_frame)));
+                    }
+                    else{
+                        now_frame.add(target);
+                        queue.add(target);
+                        char setLRU = queue.poll();
+                        for(int index_Search_LRU = 0;index_Search_LRU<now_frame.size();index_Search_LRU++){
+                            char searchLRU =  now_frame.get(index_Search_LRU);
+                            if(setLRU == searchLRU){
+                                isLRU[index_Search_LRU] = true;
+                                break;
+                            }
+                        }
+                        Result.add(new PageResult(target,true,new ArrayList<>(now_frame)));
+                    }
+                }
+                else{
+                    while (!isLRU[victim_page]) {
+                        victim_page = (victim_page + 1) % frame_num;
+                    }
+                    now_frame.set(victim_page,target);
+                    queue.add(target);
+                    char setLRU = queue.poll();
+                    for(int index_Search_LRU = 0;index_Search_LRU<now_frame.size();index_Search_LRU++){
+                        char searchLRU =  now_frame.get(index_Search_LRU);
+                        if(setLRU == searchLRU){
+                            isLRU[index_Search_LRU] = true;
+                            break;
+                        }
+                    }
+                    Result.add(new PageResult(target,true,new ArrayList<>(now_frame)));
+                    victim_page = (victim_page + 1) % frame_num;
+                }
+            }
+        }
+        return Result;
+    }
 }

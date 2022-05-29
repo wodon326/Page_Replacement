@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class PageReplacement_GUI extends JFrame {
@@ -19,7 +20,7 @@ public class PageReplacement_GUI extends JFrame {
         getContentPane().setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 800, 500);
-        String Policy[] = {"FIFO","Optimal","LRU","Second Chance"};
+        String Policy[] = {"FIFO","Optimal","LRU","Second Chance","LRU Pool"};
         JComboBox comboBox = new JComboBox(Policy);
         comboBox.setBounds(12, 10, 235, 47);
         getContentPane().add(comboBox);
@@ -66,6 +67,18 @@ public class PageReplacement_GUI extends JFrame {
         JButton Random_button = new JButton("Random");
         Random_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                int leftLimit = 65;
+                int rightLimit = 90;
+
+                int targetStringLength = (int)((Math.random()*10000)%25)+10;
+                Random random = new Random();
+                StringBuilder buffer = new StringBuilder(targetStringLength);
+                for (int i = 0; i < targetStringLength; i++) {
+                    int randomLimitedInt = leftLimit + (int)
+                            (random.nextFloat() * (rightLimit - leftLimit + 1));
+                    buffer.append((char) randomLimitedInt);
+                }
+                ReferenceString_textField.setText(buffer.toString());
             }
         });
         Random_button.setBounds(591, 10, 90, 47);
@@ -92,7 +105,9 @@ public class PageReplacement_GUI extends JFrame {
                     case "Second Chance":
                         result = PageReplacement.Second_Chance(reference_string,Integer.parseInt(frame));
                         break;
-
+                    case "LRU Pool":
+                        result = PageReplacement.LRUPool(reference_string,Integer.parseInt(frame));
+                        break;
                     default:
                         break;
                 }
@@ -134,6 +149,7 @@ class chart extends JPanel{
         int jump = 30;
         int xjump = jump + 3;
         int yjump = jump + 1;
+        int maxy = 0;
         if(result!=null){
             for(PageResult PageResult : result){
                 g.drawRect(x,y,30,30);
@@ -162,10 +178,13 @@ class chart extends JPanel{
                         y += yjump;
                     }
                 }
+                if(maxy<y){
+                    maxy = y;
+                }
                 x+=xjump;
                 y = 0;
             }
-            setPreferredSize(new Dimension(x,400));
+            setPreferredSize(new Dimension(x,maxy));
             updateUI();
         }
     }
@@ -185,17 +204,13 @@ class CircleChart extends JPanel{
         if(whole!=0){
             int fault_angle = (int) (3.6*((double) pagefault_num / (double) whole) * 100);
             int hit_angle = (int) (3.6*((double)  pagehit_num/ (double) whole) * 100);
-            System.out.println(pagefault_num);
-            System.out.println(pagehit_num);
-            System.out.println(fault_angle);
-            System.out.println(hit_angle);
             g.setColor(Color.red);
             g.fillArc(15, 0, 150, 150, 0, fault_angle);
             g.drawString("Fault : "+pagefault_num,15,165);
             g.setColor(Color.blue);
             g.fillArc(15, 0, 150, 150,fault_angle, hit_angle);
             g.drawString("Hit : "+pagehit_num,80,165);
-            String Fault_rate = Double.toString(Math.round((double)pagefault_num/(double)whole*100)/100.0);
+            String Fault_rate = Double.toString(Math.round((double)pagefault_num/(double)whole*100)/100.0*100);
             g.setColor(Color.black);
             g.drawString("Page Fault Rate (%) = "+Fault_rate,15,185);
         }
