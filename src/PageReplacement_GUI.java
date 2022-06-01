@@ -13,6 +13,10 @@ import java.util.Random;
 public class PageReplacement_GUI extends JFrame {
     private JTextField ReferenceString_textField;
     private JTextField Frame_textField;
+    private JTextField Min_Limit_textField;
+    private JTextField Max_Limit_textField;
+    private JTextField Length_textField;
+
     private chart chart;
     private CircleChart CircleChart;
     private DefaultTableModel OutputModel;
@@ -22,8 +26,26 @@ public class PageReplacement_GUI extends JFrame {
         setBounds(100, 100, 800, 500);
         String Policy[] = {"FIFO","Optimal","LRU","Second Chance","LRU Pool"};
         JComboBox comboBox = new JComboBox(Policy);
-        comboBox.setBounds(12, 10, 235, 47);
+        comboBox.setBounds(12, 10, 130, 47);
         getContentPane().add(comboBox);
+
+        JLabel lblNewLabel_min = new JLabel("Min Limit");
+        lblNewLabel_min.setBounds(150, 10, 60, 16);
+        getContentPane().add(lblNewLabel_min);
+
+        Min_Limit_textField =  new JTextField("65");
+        Min_Limit_textField.setBounds(150, 36, 55, 21);
+        getContentPane().add(Min_Limit_textField);
+        Min_Limit_textField.setColumns(10);
+
+        JLabel lblNewLabel_max = new JLabel("Max Limit");
+        lblNewLabel_max.setBounds(210, 10, 60, 16);
+        getContentPane().add(lblNewLabel_max);
+
+        Max_Limit_textField =  new JTextField("90");
+        Max_Limit_textField.setBounds(210, 36, 55, 21);
+        getContentPane().add(Max_Limit_textField);
+        Max_Limit_textField.setColumns(10);
 
         chart = new chart();
         chart.setPreferredSize(new Dimension(600,400));
@@ -33,7 +55,7 @@ public class PageReplacement_GUI extends JFrame {
         getContentPane().add(scroll);
 
         ReferenceString_textField = new JTextField();
-        ReferenceString_textField.setBounds(259, 36, 240, 21);
+        ReferenceString_textField.setBounds(325, 36, 175, 21);
         getContentPane().add(ReferenceString_textField);
         ReferenceString_textField.setColumns(10);
 
@@ -42,8 +64,18 @@ public class PageReplacement_GUI extends JFrame {
         getContentPane().add(Frame_textField);
         Frame_textField.setColumns(10);
 
+        JLabel lblNewLabel_Length = new JLabel("Length");
+        lblNewLabel_Length.setBounds(270, 10, 60, 16);
+        getContentPane().add(lblNewLabel_Length);
+
+        Length_textField =  new JTextField();
+        Length_textField.setBounds(270, 36, 50, 21);
+        getContentPane().add(Length_textField);
+        Length_textField.setColumns(10);
+
+
         JLabel lblNewLabel = new JLabel("Reference String");
-        lblNewLabel.setBounds(333, 10, 100, 16);
+        lblNewLabel.setBounds(365, 10, 100, 16);
         getContentPane().add(lblNewLabel);
 
         JLabel lblNewLabel_1 = new JLabel("Frame");
@@ -67,10 +99,15 @@ public class PageReplacement_GUI extends JFrame {
         JButton Random_button = new JButton("Random");
         Random_button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int leftLimit = 65;
-                int rightLimit = 90;
+                String minLimit = Min_Limit_textField.getText();
+                String maxLimit = Max_Limit_textField.getText();
+                int leftLimit = Integer.parseInt(minLimit);
+                int rightLimit = Integer.parseInt(maxLimit);
+                if(leftLimit>rightLimit) return;
 
                 int targetStringLength = (int)((Math.random()*10000)%25)+10;
+                String length = Length_textField.getText();
+                if(!length.equals("")) targetStringLength = Integer.parseInt(length);
                 Random random = new Random();
                 StringBuilder buffer = new StringBuilder(targetStringLength);
                 for (int i = 0; i < targetStringLength; i++) {
